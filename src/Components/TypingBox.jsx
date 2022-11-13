@@ -7,17 +7,20 @@ import React, {
   useMemo,
 } from "react";
 import { useTestMode } from "../Context/TestMode";
+import Stats from "./Stats";
 import UpperMenu from "./UpperMenu";
 
 var randomWords = require("random-words");
 
 const TypingBox = ({}) => {
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentWordIndex, setCurrentWordIndex] = useState(1);
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [countDown, setCountDown] = useState(15);
   const [testStart, setTestStart] = useState(false);
   const [testOver, setTestOver] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
+  const [correctChars, setCorrectChars] = useState(0);
+  const [correctWords, setCorrectWords] = useState(0);
   const [wordsArray, setWordsArray] = useState(() => {
     return randomWords(100);
   });
@@ -72,6 +75,12 @@ const TypingBox = ({}) => {
 
     //logic for space
     if (e.keyCode === 32) {
+      const correctChar =
+        wordSpanRef[currentWordIndex].current.querySelectorAll(".correct");
+      if (correctChar.length === allChildrenSpan.length) {
+        setCorrectWords(correctWords + 1);
+      }
+      // removing cursor from word
       if (allChildrenSpan.length <= currentCharIndex) {
         // allChildrenSpan[currentCharIndex - 1].classList.remove("right");
         allChildrenSpan[currentCharIndex - 1].className = allChildrenSpan[
@@ -113,10 +122,6 @@ const TypingBox = ({}) => {
         allChildrenSpan[currentCharIndex - 1].className = "char current";
         setCurrentCharIndex(currentCharIndex - 1);
       }
-      // else{
-
-      // }
-
       return;
     }
 
@@ -130,12 +135,14 @@ const TypingBox = ({}) => {
       ].className.replace("right", "");
 
       wordSpanRef[currentWordIndex].current.append(newSpan);
-      setCurrentCharIndex(setCurrentCharIndex + 1);
+      setCurrentCharIndex(currentCharIndex + 1);
+      return;
     }
 
     //logic for correct & incorrect characters
     if (e.key === allChildrenSpan[currentCharIndex].innerText) {
       allChildrenSpan[currentCharIndex].className = "char correct";
+      setCorrectChars(correctChars + 1);
     } else {
       allChildrenSpan[currentCharIndex].className = "char incorrect";
     }
@@ -147,6 +154,15 @@ const TypingBox = ({}) => {
       allChildrenSpan[currentCharIndex + 1].className = "char current";
       setCurrentCharIndex(currentCharIndex + 1);
     }
+  };
+
+  const calculateWPM = () => {
+    return Math.round(correctChars / 5 / (testTime / 60));
+  };
+
+  const calculateAccuracy = () => {
+    console.log(correctWords, currentWordIndex);
+    return Math.round((correctWords / currentWordIndex) * 100);
   };
 
   const resetTest = () => {
@@ -178,7 +194,7 @@ const TypingBox = ({}) => {
     <div>
       <UpperMenu countDown={countDown} />
       {testOver ? (
-        <h1>Test Over</h1>
+        <Stats wpm={calculateWPM()} accuracy={calculateAccuracy()} />
       ) : (
         <div className="type-box" onClick={focusInput}>
           <div className="words">

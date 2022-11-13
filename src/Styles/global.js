@@ -119,4 +119,31 @@ body{
 
 }
 
+.stats-box{
+    display: flex;
+    max-width: 1000px;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.title{
+    font-size: 20px;
+    color: grey;
+}
+
+.subtitle{
+    font-size: 30px;
+    color: gold;
+}
+
+.left-stats{
+    width: 30%;
+    padding: 30px;
+}
+
+right-stats{
+    width: 70%;
+}
+
 `;
