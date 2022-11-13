@@ -91,4 +91,32 @@ body{
     }
 }
 
+.counter{
+    cursor: none;
+}
+
+.upper-menu{
+    display: flex;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: space-between;
+    font-size: 20px;
+    padding: 1rem;
+}
+
+.time-modes{
+    display: flex;
+}
+
+.time{
+    margin-right: 15px;
+}
+
+.time:hover{
+    cursor: pointer;
+    color: yellow;
+
+}
+
 `;
