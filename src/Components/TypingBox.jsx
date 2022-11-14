@@ -13,7 +13,7 @@ import UpperMenu from "./UpperMenu";
 var randomWords = require("random-words");
 
 const TypingBox = ({}) => {
-  const [currentWordIndex, setCurrentWordIndex] = useState(1);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [countDown, setCountDown] = useState(15);
   const [testStart, setTestStart] = useState(false);
@@ -21,6 +21,10 @@ const TypingBox = ({}) => {
   const [intervalId, setIntervalId] = useState(null);
   const [correctChars, setCorrectChars] = useState(0);
   const [correctWords, setCorrectWords] = useState(0);
+  const [incorrectChars, setIncorrectChars] = useState(0);
+  const [extraChars, setExtraChars] = useState(0);
+  const [missedChars, setMissedChars] = useState(0);
+  const [graphData, setGraphData] = useState([]);
   const [wordsArray, setWordsArray] = useState(() => {
     return randomWords(100);
   });
@@ -54,6 +58,21 @@ const TypingBox = ({}) => {
 
     function timer() {
       setCountDown((prevCountDown) => {
+        setCorrectChars((correctChars) => {
+          setGraphData((data) => {
+            return [
+              ...data,
+              [
+                testTime - prevCountDown,
+                Math.round(
+                  correctChars / 5 / ((testTime - prevCountDown + 1) / 60)
+                ),
+              ],
+            ];
+          });
+          return correctChars;
+        });
+
         if (prevCountDown === 1) {
           clearInterval(intervalId);
           setCountDown(0);
@@ -77,6 +96,14 @@ const TypingBox = ({}) => {
     if (e.keyCode === 32) {
       const correctChar =
         wordSpanRef[currentWordIndex].current.querySelectorAll(".correct");
+
+      const incorrectChar =
+        wordSpanRef[currentWordIndex].current.querySelectorAll(".incorrect");
+      setMissedChars(
+        missedChars +
+          (allChildrenSpan.length - (incorrectChar.length + correctChar.length))
+      );
+
       if (correctChar.length === allChildrenSpan.length) {
         setCorrectWords(correctWords + 1);
       }
@@ -136,6 +163,7 @@ const TypingBox = ({}) => {
 
       wordSpanRef[currentWordIndex].current.append(newSpan);
       setCurrentCharIndex(currentCharIndex + 1);
+      setExtraChars(extraChars + 1);
       return;
     }
 
@@ -145,6 +173,7 @@ const TypingBox = ({}) => {
       setCorrectChars(correctChars + 1);
     } else {
       allChildrenSpan[currentCharIndex].className = "char incorrect";
+      setIncorrectChars(incorrectChars + 1);
     }
 
     if (currentCharIndex + 1 === allChildrenSpan.length) {
@@ -192,23 +221,33 @@ const TypingBox = ({}) => {
 
   return (
     <div>
-      <UpperMenu countDown={countDown} />
       {testOver ? (
-        <Stats wpm={calculateWPM()} accuracy={calculateAccuracy()} />
+        <Stats
+          wpm={calculateWPM()}
+          accuracy={calculateAccuracy()}
+          graphData={graphData}
+          correctChars={correctChars}
+          incorrectChars={incorrectChars}
+          extraChars={extraChars}
+          missedChars={missedChars}
+        />
       ) : (
-        <div className="type-box" onClick={focusInput}>
-          <div className="words">
-            {words.map((word, index) => (
-              <span className="word" ref={wordSpanRef[index]} key={index}>
-                {word.split("").map((char, idx) => (
-                  <span className="char" key={`char${idx}`}>
-                    {char}
-                  </span>
-                ))}
-              </span>
-            ))}
+        <>
+          <UpperMenu countDown={countDown} />
+          <div className="type-box" onClick={focusInput}>
+            <div className="words">
+              {words.map((word, index) => (
+                <span className="word" ref={wordSpanRef[index]} key={index}>
+                  {word.split("").map((char, idx) => (
+                    <span className="char" key={`char${idx}`}>
+                      {char}
+                    </span>
+                  ))}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       <input

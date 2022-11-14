@@ -142,7 +142,8 @@ body{
     padding: 30px;
 }
 
-right-stats{
+.right-stats{
+    // border: 1px;
     width: 70%;
 }
 
