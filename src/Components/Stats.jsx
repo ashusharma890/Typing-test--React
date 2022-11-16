@@ -1,5 +1,6 @@
 import React from "react";
 import Graph from "./Graph";
+import { ModalHover } from "react-modal-hover";
 
 const Stats = ({
   wpm,
